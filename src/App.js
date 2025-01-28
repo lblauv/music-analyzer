@@ -57,8 +57,8 @@ export default function SpotifyApp() {
       const playlistResponse = await axios.post(
         'https://api.spotify.com/v1/me/playlists',
         {
-          name: 'My Discover Weekly',
-          description: 'Custom Discover Weekly playlist created with your top tracks',
+          name: 'My Top Favorite Songs',
+          description: 'A playlist of your top favorite songs with added insights',
           public: false,
         },
         {
@@ -85,39 +85,42 @@ export default function SpotifyApp() {
       );
 
       setCustomPlaylist(playlistResponse.data);
-      alert('Your custom Discover Weekly playlist has been created!');
+      alert('Your playlist of top favorite songs has been created!');
 
       // Calculate metrics
-      calculateMetrics(trackData, playlistResponse.data);
+      calculateMetrics(trackData);
     } catch (error) {
       console.error('Error creating playlist:', error);
     }
   };
 
-  const calculateMetrics = (topTracks, playlist) => {
-    // Example metrics: average popularity and genre diversity
+  const calculateMetrics = (topTracks) => {
+    // Metrics: Average popularity, genre diversity, and more insights
     const popularityScores = topTracks.map(track => track.popularity);
     const averagePopularity =
       popularityScores.reduce((sum, score) => sum + score, 0) / popularityScores.length;
 
-    const genres = new Set();
-    topTracks.forEach(track => {
-      track.artists.forEach(artist => {
-        if (artist.genres) {
-          artist.genres.forEach(genre => genres.add(genre));
-        }
-      });
-    });
+    const releaseYears = topTracks.map(track => new Date(track.album.release_date).getFullYear());
+    const averageReleaseYear =
+      Math.round(releaseYears.reduce((sum, year) => sum + year, 0) / releaseYears.length);
+
+    const uniqueArtists = new Set(topTracks.map(track => track.artists[0].name));
+
+    const trackDurations = topTracks.map(track => track.duration_ms / 60000); // Convert ms to minutes
+    const averageDuration =
+      (trackDurations.reduce((sum, duration) => sum + duration, 0) / trackDurations.length).toFixed(2);
 
     setMetrics({
       averagePopularity: averagePopularity.toFixed(2),
-      genreDiversity: genres.size,
+      averageReleaseYear,
+      uniqueArtists: uniqueArtists.size,
+      averageDuration,
     });
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold">Spotify Custom Discover Weekly</h1>
+      <h1 className="text-2xl font-bold">Spotify Custom Music Analyzer</h1>
       {!token ? (
         <a
           href={`${AUTH_ENDPOINT}?client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES.join(",")}`}
@@ -130,7 +133,7 @@ export default function SpotifyApp() {
           <Button onClick={fetchTopTracks} variant="contained" color="success" className="mb-4">Fetch Top Tracks</Button>
           {trackData.length > 0 && (
             <Button onClick={createDiscoverWeekly} variant="contained" color="primary" className="mb-4">
-              Create Discover Weekly Playlist
+              Create My Top Favorite Songs Playlist
             </Button>
           )}
           {customPlaylist && (
@@ -147,9 +150,11 @@ export default function SpotifyApp() {
           {metrics && (
             <Card className="mt-4">
               <CardContent>
-                <h2 className="text-xl font-bold">Playlist Metrics</h2>
+                <h2 className="text-xl font-bold">Playlist Insights</h2>
                 <p>Average Popularity: {metrics.averagePopularity}</p>
-                <p>Genre Diversity: {metrics.genreDiversity} unique genres</p>
+                <p>Average Release Year: {metrics.averageReleaseYear}</p>
+                <p>Unique Artists: {metrics.uniqueArtists}</p>
+                <p>Average Duration: {metrics.averageDuration} minutes</p>
               </CardContent>
             </Card>
           )}
