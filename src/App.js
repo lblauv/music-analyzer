@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import axios from 'axios';
 
 const CLIENT_ID = 'ec8e7ddb36c548acb9023a7102a26291';
-const REDIRECT_URI = 'http://localhost:3000'; // Update with your deployed URI
+const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer';
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
 const SCOPES = [
