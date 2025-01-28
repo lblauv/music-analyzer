@@ -4,7 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import axios from 'axios';
 
-const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer'; 
+const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer'; // Update with your deployed URI
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
 const SCOPES = ['playlist-read-private', 'user-top-read', 'playlist-modify-public', 'playlist-modify-private'];
@@ -13,6 +13,7 @@ export default function SpotifyApp() {
   const [token, setToken] = useState(null);
   const [customPlaylist, setCustomPlaylist] = useState(null);
   const [trackData, setTrackData] = useState([]);
+  const [metrics, setMetrics] = useState(null);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -85,9 +86,33 @@ export default function SpotifyApp() {
 
       setCustomPlaylist(playlistResponse.data);
       alert('Your custom Discover Weekly playlist has been created!');
+
+      // Calculate metrics
+      calculateMetrics(trackData, playlistResponse.data);
     } catch (error) {
       console.error('Error creating playlist:', error);
     }
+  };
+
+  const calculateMetrics = (topTracks, playlist) => {
+    // Example metrics: average popularity and genre diversity
+    const popularityScores = topTracks.map(track => track.popularity);
+    const averagePopularity =
+      popularityScores.reduce((sum, score) => sum + score, 0) / popularityScores.length;
+
+    const genres = new Set();
+    topTracks.forEach(track => {
+      track.artists.forEach(artist => {
+        if (artist.genres) {
+          artist.genres.forEach(genre => genres.add(genre));
+        }
+      });
+    });
+
+    setMetrics({
+      averagePopularity: averagePopularity.toFixed(2),
+      genreDiversity: genres.size,
+    });
   };
 
   return (
@@ -116,6 +141,15 @@ export default function SpotifyApp() {
                 <a href={customPlaylist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
                   Open Playlist on Spotify
                 </a>
+              </CardContent>
+            </Card>
+          )}
+          {metrics && (
+            <Card className="mt-4">
+              <CardContent>
+                <h2 className="text-xl font-bold">Playlist Metrics</h2>
+                <p>Average Popularity: {metrics.averagePopularity}</p>
+                <p>Genre Diversity: {metrics.genreDiversity} unique genres</p>
               </CardContent>
             </Card>
           )}
