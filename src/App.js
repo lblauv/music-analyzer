@@ -4,7 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import axios from 'axios';
 
-const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer'; // Update with your deployed URI
+const REDIRECT_URI = 'https://lblauv.github.io/music-analyzer'; // Update with your deployed URI
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
 const SCOPES = ['playlist-read-private', 'user-top-read', 'playlist-modify-public', 'playlist-modify-private'];
