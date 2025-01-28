@@ -2,21 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-
 import axios from 'axios';
 
-const CLIENT_ID = 'ec8e7ddb36c548acb9023a7102a26291';
-const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer';
+const REDIRECT_URI = 'https://lblauv.github.io/spotify-analyzer'; 
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const RESPONSE_TYPE = 'token';
-const SCOPES = [
-  'playlist-read-private',
-  'user-top-read',
-  'playlist-modify-public',
-  'playlist-modify-private',
-];
-
-
+const SCOPES = ['playlist-read-private', 'user-top-read', 'playlist-modify-public', 'playlist-modify-private'];
 
 export default function SpotifyApp() {
   const [token, setToken] = useState(null);
@@ -61,18 +52,9 @@ export default function SpotifyApp() {
 
   const createDiscoverWeekly = async () => {
     try {
-      // Fetch user profile to get user ID
-      const userProfile = await axios.get('https://api.spotify.com/v1/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const userId = userProfile.data.id;
-
       // Create a new playlist
       const playlistResponse = await axios.post(
-        `https://api.spotify.com/v1/users/${userId}/playlists`,
+        'https://api.spotify.com/v1/me/playlists',
         {
           name: 'My Discover Weekly',
           description: 'Custom Discover Weekly playlist created with your top tracks',
@@ -113,7 +95,7 @@ export default function SpotifyApp() {
       <h1 className="text-2xl font-bold">Spotify Custom Discover Weekly</h1>
       {!token ? (
         <a
-          href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES.join(",")}`}
+          href={`${AUTH_ENDPOINT}?client_id=${process.env.REACT_APP_SPOTIFY_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPES.join(",")}`}
         >
           <Button variant="contained" color="primary" className="mt-4">Login with Spotify</Button>
         </a>
